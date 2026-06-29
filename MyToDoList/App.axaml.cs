@@ -43,7 +43,12 @@ namespace MyToDoList
                     }
                 }
 
-                desktop.MainWindow = new MainWindow
+                //desktop.MainWindow = new MainWindow
+                //{
+                //    DataContext = new MainViewModel()
+                //};
+
+                desktop.MainWindow = new GroupsWindow
                 {
                     DataContext = new MainViewModel()
                 };
