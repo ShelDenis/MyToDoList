@@ -25,16 +25,14 @@ namespace MyToDoList.ViewModels
         private string? _newGroupContent;
 
         [ObservableProperty]
-        private TaskGroup? _selectedGroup;
+        private TaskGroup? _currentGroup = null;
+
+        [ObservableProperty]
+        private bool _isShowingTasks = false;
 
         public MainViewModel()
         {
             LoadGroups();
-        }
-
-        partial void OnSelectedGroupChanged(TaskGroup? value)
-        {
-            LoadTasks();
         }
 
         private void LoadGroups()
@@ -47,12 +45,11 @@ namespace MyToDoList.ViewModels
             {
                 Groups.Add(group);
             }
-            if (Groups.Count > 0) SelectedGroup = Groups[0];
         }
 
         private void LoadTasks()
         {
-            if (SelectedGroup == null)
+            if (CurrentGroup == null)
             {
                 Tasks.Clear();
                 return;
@@ -62,7 +59,7 @@ namespace MyToDoList.ViewModels
             var taskService = new TaskService(db);
 
             Tasks.Clear();
-            var tasks = taskService.GetTasksByGroup(SelectedGroup.Id);  
+            var tasks = taskService.GetTasksByGroup(CurrentGroup.Id);  
 
             foreach (var task in tasks)
             {
@@ -70,17 +67,26 @@ namespace MyToDoList.ViewModels
             }
         }
 
+        partial void OnCurrentGroupChanged(TaskGroup? value)
+        {
+            if (value != null)
+            {
+                IsShowingTasks = true;  
+                LoadTasks();           
+            }
+        }
+
         [RelayCommand(CanExecute = nameof(CanAddTask))]
         private void AddItem()
         {
-            if (SelectedGroup == null) return;
+            if (CurrentGroup == null) return;
 
             var newTask = new Task()
             {
                 Content = NewItemContent!,
                 IsCompleted = false,
                 CreatedAt = DateTime.Now,
-                GroupId = SelectedGroup.Id 
+                GroupId = CurrentGroup.Id 
             };
 
             using var db = new AppDbContext();
@@ -91,7 +97,7 @@ namespace MyToDoList.ViewModels
             NewItemContent = null;
         }
 
-        private bool CanAddTask() => !string.IsNullOrWhiteSpace(NewItemContent) && SelectedGroup != null;
+        private bool CanAddTask() => !string.IsNullOrWhiteSpace(NewItemContent) && CurrentGroup != null;
 
         [RelayCommand(CanExecute = nameof(CanAddGroup))]
         private void AddGroup()
@@ -108,7 +114,7 @@ namespace MyToDoList.ViewModels
 
             Groups.Add(newGroup);
             NewGroupContent = null;
-            SelectedGroup = newGroup; 
+            CurrentGroup = newGroup; 
         }
 
         private bool CanAddGroup() => !string.IsNullOrWhiteSpace(NewGroupContent);
@@ -156,10 +162,30 @@ namespace MyToDoList.ViewModels
 
             Groups.Remove(group);
 
-            if (SelectedGroup == group)
+            if (CurrentGroup == group)
             {
-                SelectedGroup = Groups.FirstOrDefault();  
+                CurrentGroup = Groups.FirstOrDefault();  
             }
         }
+
+        [RelayCommand]
+        private void SelectGroup(TaskGroup group)
+        {
+            if (group == null) return;
+
+            CurrentGroup = group;
+            IsShowingTasks = true;
+            LoadTasks();
+        }
+
+        [RelayCommand]
+        private void BackToGroups()
+        {
+            IsShowingTasks = false;
+            CurrentGroup = null;
+            Tasks.Clear();
+        }
+
+
     }
 }
