@@ -1,13 +1,15 @@
 ﻿using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using MyToDoList.DB;
 using MyToDoList.Models;
 using MyToDoList.Services;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Tmds.DBus.Protocol;
 
 namespace MyToDoList.ViewModels
 {
@@ -160,9 +162,21 @@ namespace MyToDoList.ViewModels
         }
 
         [RelayCommand]
-        private void RemoveGroup(TaskGroup group)
+        private async void RemoveGroup(TaskGroup group)
         {
             if (group == null) return;
+
+           
+            var box = MessageBoxManager.GetMessageBoxStandard(
+                "Delete",
+                "Are you sure to remove the group?",
+                ButtonEnum.OkCancel);
+
+
+            var result = await box.ShowAsync();
+
+            if (result != ButtonResult.Ok)
+                return;
 
             using var db = new AppDbContext();
             var groupService = new TaskGroupService(db);

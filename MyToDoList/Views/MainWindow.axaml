@@ -78,24 +78,68 @@
 		
 		</Button>
 
-		<Button DockPanel.Dock="Bottom"
-				HorizontalAlignment="Right"
+		<StackPanel 
+			Orientation="Horizontal"
+			DockPanel.Dock="Bottom" 
+			HorizontalAlignment="Right">
+			<Button
+					Width="60"
+					Height="60"
+					Margin="50"
+					CornerRadius="30"
+					Background="#1FB5B8"
+					Command="{Binding RemoveGroupCommand}"
+					CommandParameter="{Binding CurrentGroup}"
+					IsVisible="{Binding IsShowingTasks}">
+
+				<TextBlock Text="🗑️"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center"
+					FontFamily="Faberge"
+					FontSize="40"
+		        />
+
+			</Button>
+
+			<Button
+					Width="60"
+					Height="60"
+					Margin="50"
+					CornerRadius="30"
+					Background="#1FB5B8"
+					Command="{Binding BackToGroupsCommand}"
+					IsVisible="{Binding IsShowingTasks}">
+
+				<TextBlock Text="←"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center"
+					FontFamily="Faberge"
+					FontSize="40"
+		        />
+
+			</Button>
+
+			<Button 
 				Width="60"
 				Height="60"
-				Margin="20"
+				Margin="50"
 				CornerRadius="30"
 				Background="#1FB5B8"
 				Command="{Binding NewTaskCommand}"
 				IsVisible="{Binding IsShowingTasks}">
 
-			<TextBlock Text="+"
-				HorizontalAlignment="Center"
-				VerticalAlignment="Center"
-				FontFamily="Faberge"
-				FontSize="40"
-		/>
+				<TextBlock Text="+"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center"
+					FontFamily="Faberge"
+					FontSize="40"
+		        />
 
-		</Button>
+			</Button>
+			
+		</StackPanel>
+		
+		
 
         <Grid>
            
