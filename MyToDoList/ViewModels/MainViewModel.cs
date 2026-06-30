@@ -31,11 +31,15 @@ namespace MyToDoList.ViewModels
         private bool _isShowingTasks = false;
 
         [ObservableProperty]
+        private bool _isShowingGroups = true;
+
+        [ObservableProperty]
         private bool _isEnteringGroupName = false;
 
         [ObservableProperty]
-        private bool _isShowingGroups = true;
+        private bool _isEnteringTaskName = false;
 
+      
         public MainViewModel()
         {
             LoadGroups();
@@ -102,6 +106,7 @@ namespace MyToDoList.ViewModels
 
             Tasks.Add(newTask);
             NewItemContent = null;
+            IsEnteringTaskName = false;
         }
 
         private bool CanAddTask() => !string.IsNullOrWhiteSpace(NewItemContent) && CurrentGroup != null;
@@ -124,6 +129,7 @@ namespace MyToDoList.ViewModels
             CurrentGroup = newGroup;
             IsEnteringGroupName = false;
             IsShowingGroups = false;
+            IsEnteringTaskName = false;
         }
 
         private bool CanAddGroup() => !string.IsNullOrWhiteSpace(NewGroupContent);
@@ -175,6 +181,9 @@ namespace MyToDoList.ViewModels
             {
                 CurrentGroup = Groups.FirstOrDefault();  
             }
+
+            IsShowingTasks = false;
+            IsShowingGroups = true;
         }
 
         [RelayCommand]
@@ -204,6 +213,14 @@ namespace MyToDoList.ViewModels
             if (IsEnteringGroupName) IsEnteringGroupName = false;
             else IsEnteringGroupName = true;
             IsShowingGroups = false;
+        }
+
+        [RelayCommand]
+        private void NewTask()
+        {
+            if (IsEnteringTaskName) IsEnteringTaskName = false;
+            else IsEnteringTaskName = true;
+            //IsShowingTasks = false;
         }
     }
 }

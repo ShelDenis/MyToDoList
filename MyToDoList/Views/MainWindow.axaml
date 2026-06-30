@@ -42,22 +42,24 @@
             </StackPanel>
         
             <StackPanel IsVisible="{Binding IsShowingTasks}">
-                <TextBlock Text="Add Task" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Grid ColumnDefinitions="*,Auto" Margin="5">
-                    <TextBox Grid.Column="0"
-                             Text="{Binding NewItemContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Margin="0,0,5,0"
-                             FontFamily="Faberge"/>
-                    <Button Grid.Column="1"
-                            Content="Add"
-                            Margin="0"
-                            FontFamily="Faberge"
-                            Command="{Binding AddItemCommand}" />
-                </Grid>
+				<StackPanel IsVisible="{Binding IsEnteringTaskName}">
+					<TextBlock Text="Add Task" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Grid ColumnDefinitions="*,Auto" Margin="5">
+						<TextBox Grid.Column="0"
+								 Text="{Binding NewItemContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+								 Margin="0,0,5,0"
+								 FontFamily="Faberge"/>
+						<Button Grid.Column="1"
+								Content="Add"
+								Margin="0"
+								FontFamily="Faberge"
+								Command="{Binding AddItemCommand}" />
+					</Grid>
+				</StackPanel>
             </StackPanel>
         </StackPanel>
-
-        <Button DockPanel.Dock="Bottom"
+			
+	    <Button DockPanel.Dock="Bottom"
                 HorizontalAlignment="Right"
 		        Width="60"
 		        Height="60"
@@ -74,6 +76,25 @@
                FontSize="40"
 			/>
 		
+		</Button>
+
+		<Button DockPanel.Dock="Bottom"
+				HorizontalAlignment="Right"
+				Width="60"
+				Height="60"
+				Margin="20"
+				CornerRadius="30"
+				Background="#1FB5B8"
+				Command="{Binding NewTaskCommand}"
+				IsVisible="{Binding IsShowingTasks}">
+
+			<TextBlock Text="+"
+				HorizontalAlignment="Center"
+				VerticalAlignment="Center"
+				FontFamily="Faberge"
+				FontSize="40"
+		/>
+
 		</Button>
 
         <Grid>
