@@ -30,6 +30,10 @@ namespace MyToDoList.ViewModels
         private string? _newGroupName;
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(EditTaskCommand))]
+        private string? _newTaskName;
+
+        [ObservableProperty]
         private TaskGroup? _currentGroup = null;
 
         [ObservableProperty]
@@ -47,7 +51,13 @@ namespace MyToDoList.ViewModels
         [ObservableProperty]
         private bool _isRenamingGroup = false;
 
-      
+        [ObservableProperty]
+        private bool _isRenamingTask = false;
+
+        [ObservableProperty]
+        private int _taskIdToRename;
+
+
         public MainViewModel()
         {
             LoadGroups();
@@ -163,6 +173,26 @@ namespace MyToDoList.ViewModels
 
         private bool CanEditGroup() => !string.IsNullOrWhiteSpace(NewGroupName);
 
+        [RelayCommand(CanExecute = nameof(CanEditTask))]
+        private void EditTask()
+        {
+            using var db = new AppDbContext();
+            var taskService = new TaskService(db);
+
+            taskService.EditTask(TaskIdToRename, NewTaskName!);
+
+            foreach (Task t in Tasks)
+            {
+                if (t.Id == TaskIdToRename)
+                    t.Content = NewTaskName!.Trim();
+            }
+
+            IsRenamingTask = false;
+
+        }
+
+        private bool CanEditTask() => !string.IsNullOrWhiteSpace(NewTaskName);
+
         [RelayCommand]
         private void RemoveItem(Task task)
         {
@@ -268,6 +298,19 @@ namespace MyToDoList.ViewModels
         {
             if (IsRenamingGroup) IsRenamingGroup = false;
             else IsRenamingGroup = true;
+        }
+
+        [RelayCommand]
+        private void RenameTask(int taskId)
+        {
+            if (IsRenamingTask) IsRenamingTask = false;
+            else IsRenamingTask = true;
+
+            TaskIdToRename = taskId;
+
+            using var db = new AppDbContext();
+            var taskService = new TaskService(db);
+            NewTaskName = taskService.GetTaskById(TaskIdToRename).Content;
         }
     }
 }

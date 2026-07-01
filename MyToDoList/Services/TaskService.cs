@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using MyToDoList.DB;
+using MyToDoList.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MyToDoList.Models;
-using MyToDoList.DB;
-using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace MyToDoList.Services
 {
@@ -21,6 +22,11 @@ namespace MyToDoList.Services
         {
             var tasks = _db.Tasks.ToList();
             return tasks;
+        }
+
+        public Task GetTaskById(int taskId)
+        {
+            return _db.Tasks.Where(t => t.Id == taskId).ToList()[0];
         }
 
         public List<Task> GetTasksByGroup(int groupId)
@@ -90,6 +96,16 @@ namespace MyToDoList.Services
             {
                 Console.WriteLine(ex.Message);
                 throw;
+            }
+        }
+
+        public void EditTask(int taskId, string newContent)
+        {
+            var task = _db.Tasks.Find(taskId);
+            if (task != null)
+            {
+                task.Content = newContent;
+                _db.SaveChanges();
             }
         }
     }
