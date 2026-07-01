@@ -9,7 +9,6 @@ using MyToDoList.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Tmds.DBus.Protocol;
 
 namespace MyToDoList.ViewModels
 {
@@ -27,6 +26,10 @@ namespace MyToDoList.ViewModels
         private string? _newGroupContent;
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(EditGroupCommand))]
+        private string? _newGroupName;
+
+        [ObservableProperty]
         private TaskGroup? _currentGroup = null;
 
         [ObservableProperty]
@@ -40,6 +43,9 @@ namespace MyToDoList.ViewModels
 
         [ObservableProperty]
         private bool _isEnteringTaskName = false;
+
+        [ObservableProperty]
+        private bool _isRenamingGroup = false;
 
       
         public MainViewModel()
@@ -66,6 +72,8 @@ namespace MyToDoList.ViewModels
                 Tasks.Clear();
                 return;
             }
+            else
+                NewGroupName = CurrentGroup.Name;
 
             using var db = new AppDbContext();
             var taskService = new TaskService(db);
@@ -135,6 +143,25 @@ namespace MyToDoList.ViewModels
         }
 
         private bool CanAddGroup() => !string.IsNullOrWhiteSpace(NewGroupContent);
+
+        [RelayCommand(CanExecute = nameof(CanEditGroup))]
+        private void EditGroup()
+        {
+            using var db = new AppDbContext();
+            var groupService = new TaskGroupService(db);
+            groupService.EditGroup(CurrentGroup!.Id, NewGroupName!);
+
+            foreach (TaskGroup g in Groups)
+            {
+                if (g.Id == CurrentGroup!.Id)
+                    g.Name = NewGroupName!.Trim();
+            }
+
+            IsRenamingGroup = false;
+
+        }
+
+        private bool CanEditGroup() => !string.IsNullOrWhiteSpace(NewGroupName);
 
         [RelayCommand]
         private void RemoveItem(Task task)
@@ -234,7 +261,13 @@ namespace MyToDoList.ViewModels
         {
             if (IsEnteringTaskName) IsEnteringTaskName = false;
             else IsEnteringTaskName = true;
-            //IsShowingTasks = false;
+        }
+
+        [RelayCommand]
+        private void RenameGroup()
+        {
+            if (IsRenamingGroup) IsRenamingGroup = false;
+            else IsRenamingGroup = true;
         }
     }
 }

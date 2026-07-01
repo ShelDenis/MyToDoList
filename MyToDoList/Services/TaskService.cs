@@ -26,8 +26,8 @@ namespace MyToDoList.Services
         public List<Task> GetTasksByGroup(int groupId)
         {
             return _db.Tasks
-                .Where(t => t.GroupId == groupId)  
-                .OrderByDescending(t => t.CreatedAt) 
+                .Where(t => t.GroupId == groupId)
+                .OrderByDescending(t => t.CreatedAt)
                 .ToList();
         }
 
@@ -41,7 +41,7 @@ namespace MyToDoList.Services
             }
             catch (Exception ex)
             {
-          
+
                 if (ex.InnerException != null)
                 {
                     Console.WriteLine(ex.InnerException.Message);

@@ -42,5 +42,15 @@ namespace MyToDoList.Services
                 _db.SaveChanges();
             }
         }
+
+        public void EditGroup(int groupId, string newName)
+        {
+            var group = _db.TaskGroups.Find(groupId);
+            if (group != null)
+            {
+                group.Name = newName;
+                _db.SaveChanges();
+            }
+        }
     }
 }
