@@ -52,5 +52,15 @@ namespace MyToDoList.Services
                 _db.SaveChanges();
             }
         }
+
+        public void RefreshLastChanges(int groupId)
+        {
+            var group = _db.TaskGroups.Find(groupId);
+            if (group != null)
+            {
+                group.LastChangeAt = DateTime.Now;
+                _db.SaveChanges();
+            }
+        }
     }
 }

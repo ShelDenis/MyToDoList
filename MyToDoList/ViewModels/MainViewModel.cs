@@ -137,7 +137,8 @@ namespace MyToDoList.ViewModels
             var newGroup = new TaskGroup
             {
                 Name = NewGroupContent!.Trim(),
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                LastChangeAt = DateTime.Now,
             };
 
             using var db = new AppDbContext();
@@ -168,7 +169,7 @@ namespace MyToDoList.ViewModels
             }
 
             IsRenamingGroup = false;
-
+            UpdateGroupDate();
         }
 
         private bool CanEditGroup() => !string.IsNullOrWhiteSpace(NewGroupName);
@@ -188,7 +189,7 @@ namespace MyToDoList.ViewModels
             }
 
             IsRenamingTask = false;
-
+            UpdateGroupDate();
         }
 
         private bool CanEditTask() => !string.IsNullOrWhiteSpace(NewTaskName);
@@ -200,6 +201,8 @@ namespace MyToDoList.ViewModels
             var taskService = new TaskService(db);
             taskService.DeleteTask(task);
             Tasks.Remove(task);
+
+            UpdateGroupDate();
         }
 
         [RelayCommand]
@@ -216,6 +219,8 @@ namespace MyToDoList.ViewModels
                 taskService.MarkAsDone(task.Id);
 
             task.IsCompleted = !task.IsCompleted;
+
+            UpdateGroupDate();
         }
 
         [RelayCommand]
@@ -311,6 +316,19 @@ namespace MyToDoList.ViewModels
             using var db = new AppDbContext();
             var taskService = new TaskService(db);
             NewTaskName = taskService.GetTaskById(TaskIdToRename).Content;
+
+            UpdateGroupDate();
+        }
+
+        public void UpdateGroupDate()
+        {
+            if (CurrentGroup == null) return;
+
+            using var db = new AppDbContext();
+            var groupService = new TaskGroupService(db);
+            groupService.RefreshLastChanges(CurrentGroup.Id);
+
+            CurrentGroup.LastChangeAt = DateTime.Now;
         }
     }
 }
