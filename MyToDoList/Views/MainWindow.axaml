@@ -276,13 +276,28 @@
             <Grid IsVisible="{Binding IsShowingTasks}" RowDefinitions="Auto, *">
                 
                 <Grid>
-                    <TextBlock Text="{Binding CurrentGroup.Name}"
-                               FontSize="25"
-                               FontFamily="Faberge"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-							   Margin="10"/>
+					<StackPanel>
+						<TextBlock Text="{Binding CurrentGroup.Name}"
+								   FontSize="25"
+								   FontFamily="Faberge"
+								   HorizontalAlignment="Center"
+								   VerticalAlignment="Center"
+								   Margin="10"/>
+						<StackPanel HorizontalAlignment="Left">
+							<TextBlock Text="{Binding CurrentGroup.CreatedAt, StringFormat='Created: {0:dd.MM.yyyy HH:mm}'}"
+								   FontSize="15"
+								   FontFamily="Faberge"
+								   Margin="5,5,15,5"
+								   HorizontalAlignment="Right"/>
+							<TextBlock Text="{Binding CurrentGroup.LastChangeAt, StringFormat='Last change: {0:dd.MM.yyyy HH:mm}'}"
+								   FontSize="15"
+								   FontFamily="Faberge"
+								   Margin="5,5,15,5"
+								   HorizontalAlignment="Right"/>
+						</StackPanel>
+					</StackPanel>
                 </Grid>
+				
 
                 <ListBox Grid.Row="1" ItemsSource="{Binding Tasks}">
                     <ListBox.ItemTemplate>

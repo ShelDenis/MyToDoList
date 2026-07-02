@@ -17,6 +17,9 @@ namespace MyToDoList.Models
         [ObservableProperty]
         public DateTime _createdAt = DateTime.Now;
 
+        [ObservableProperty]
+        public DateTime _lastChangeAt = DateTime.Now;
+
         public ICollection<Task> Tasks { get; set; } = new List<Task>();
     }
 }
