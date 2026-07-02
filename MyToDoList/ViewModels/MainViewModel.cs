@@ -1,11 +1,12 @@
 ﻿using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using MyToDoList.DB;
 using MyToDoList.Models;
 using MyToDoList.Services;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -25,16 +26,41 @@ namespace MyToDoList.ViewModels
         private string? _newGroupContent;
 
         [ObservableProperty]
-        private TaskGroup? _selectedGroup;
+        [NotifyCanExecuteChangedFor(nameof(EditGroupCommand))]
+        private string? _newGroupName;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(EditTaskCommand))]
+        private string? _newTaskName;
+
+        [ObservableProperty]
+        private TaskGroup? _currentGroup = null;
+
+        [ObservableProperty]
+        private bool _isShowingTasks = false;
+
+        [ObservableProperty]
+        private bool _isShowingGroups = true;
+
+        [ObservableProperty]
+        private bool _isEnteringGroupName = false;
+
+        [ObservableProperty]
+        private bool _isEnteringTaskName = false;
+
+        [ObservableProperty]
+        private bool _isRenamingGroup = false;
+
+        [ObservableProperty]
+        private bool _isRenamingTask = false;
+
+        [ObservableProperty]
+        private int _taskIdToRename;
+
 
         public MainViewModel()
         {
             LoadGroups();
-        }
-
-        partial void OnSelectedGroupChanged(TaskGroup? value)
-        {
-            LoadTasks();
         }
 
         private void LoadGroups()
@@ -47,22 +73,23 @@ namespace MyToDoList.ViewModels
             {
                 Groups.Add(group);
             }
-            if (Groups.Count > 0) SelectedGroup = Groups[0];
         }
 
         private void LoadTasks()
         {
-            if (SelectedGroup == null)
+            if (CurrentGroup == null)
             {
                 Tasks.Clear();
                 return;
             }
+            else
+                NewGroupName = CurrentGroup.Name;
 
             using var db = new AppDbContext();
             var taskService = new TaskService(db);
 
             Tasks.Clear();
-            var tasks = taskService.GetTasksByGroup(SelectedGroup.Id);  
+            var tasks = taskService.GetTasksByGroup(CurrentGroup.Id);  
 
             foreach (var task in tasks)
             {
@@ -70,17 +97,27 @@ namespace MyToDoList.ViewModels
             }
         }
 
+        partial void OnCurrentGroupChanged(TaskGroup? value)
+        {
+            if (value != null)
+            {
+                IsShowingTasks = true;  
+                LoadTasks();
+                IsShowingGroups = false;
+            }
+        }
+
         [RelayCommand(CanExecute = nameof(CanAddTask))]
         private void AddItem()
         {
-            if (SelectedGroup == null) return;
+            if (CurrentGroup == null) return;
 
             var newTask = new Task()
             {
                 Content = NewItemContent!,
                 IsCompleted = false,
                 CreatedAt = DateTime.Now,
-                GroupId = SelectedGroup.Id 
+                GroupId = CurrentGroup.Id 
             };
 
             using var db = new AppDbContext();
@@ -89,9 +126,10 @@ namespace MyToDoList.ViewModels
 
             Tasks.Add(newTask);
             NewItemContent = null;
+            IsEnteringTaskName = false;
         }
 
-        private bool CanAddTask() => !string.IsNullOrWhiteSpace(NewItemContent) && SelectedGroup != null;
+        private bool CanAddTask() => !string.IsNullOrWhiteSpace(NewItemContent) && CurrentGroup != null;
 
         [RelayCommand(CanExecute = nameof(CanAddGroup))]
         private void AddGroup()
@@ -108,10 +146,52 @@ namespace MyToDoList.ViewModels
 
             Groups.Add(newGroup);
             NewGroupContent = null;
-            SelectedGroup = newGroup; 
+            CurrentGroup = newGroup;
+            IsEnteringGroupName = false;
+            IsShowingGroups = false;
+            IsEnteringTaskName = false;
         }
 
         private bool CanAddGroup() => !string.IsNullOrWhiteSpace(NewGroupContent);
+
+        [RelayCommand(CanExecute = nameof(CanEditGroup))]
+        private void EditGroup()
+        {
+            using var db = new AppDbContext();
+            var groupService = new TaskGroupService(db);
+            groupService.EditGroup(CurrentGroup!.Id, NewGroupName!);
+
+            foreach (TaskGroup g in Groups)
+            {
+                if (g.Id == CurrentGroup!.Id)
+                    g.Name = NewGroupName!.Trim();
+            }
+
+            IsRenamingGroup = false;
+
+        }
+
+        private bool CanEditGroup() => !string.IsNullOrWhiteSpace(NewGroupName);
+
+        [RelayCommand(CanExecute = nameof(CanEditTask))]
+        private void EditTask()
+        {
+            using var db = new AppDbContext();
+            var taskService = new TaskService(db);
+
+            taskService.EditTask(TaskIdToRename, NewTaskName!);
+
+            foreach (Task t in Tasks)
+            {
+                if (t.Id == TaskIdToRename)
+                    t.Content = NewTaskName!.Trim();
+            }
+
+            IsRenamingTask = false;
+
+        }
+
+        private bool CanEditTask() => !string.IsNullOrWhiteSpace(NewTaskName);
 
         [RelayCommand]
         private void RemoveItem(Task task)
@@ -139,9 +219,21 @@ namespace MyToDoList.ViewModels
         }
 
         [RelayCommand]
-        private void RemoveGroup(TaskGroup group)
+        private async void RemoveGroup(TaskGroup group)
         {
             if (group == null) return;
+
+           
+            var box = MessageBoxManager.GetMessageBoxStandard(
+                "Delete",
+                "Are you sure to remove the group?",
+                ButtonEnum.OkCancel);
+
+
+            var result = await box.ShowAsync();
+
+            if (result != ButtonResult.Ok)
+                return;
 
             using var db = new AppDbContext();
             var groupService = new TaskGroupService(db);
@@ -156,10 +248,69 @@ namespace MyToDoList.ViewModels
 
             Groups.Remove(group);
 
-            if (SelectedGroup == group)
+            if (CurrentGroup == group)
             {
-                SelectedGroup = Groups.FirstOrDefault();  
+                CurrentGroup = Groups.FirstOrDefault();  
             }
+
+            IsShowingTasks = false;
+            IsShowingGroups = true;
+        }
+
+        [RelayCommand]
+        private void SelectGroup(TaskGroup group)
+        {
+            if (group == null) return;
+
+            CurrentGroup = group;
+            IsShowingTasks = true;
+            LoadTasks();
+            IsShowingGroups = false;
+        }
+
+        [RelayCommand]
+        private void BackToGroups()
+        {
+            IsShowingTasks = false;
+            CurrentGroup = null;
+            Tasks.Clear();
+            IsShowingGroups = true;
+            IsEnteringGroupName = false;
+        }
+
+        [RelayCommand]
+        private void NewGroup()
+        {
+            if (IsEnteringGroupName) IsEnteringGroupName = false;
+            else IsEnteringGroupName = true;
+            IsShowingGroups = false;
+        }
+
+        [RelayCommand]
+        private void NewTask()
+        {
+            if (IsEnteringTaskName) IsEnteringTaskName = false;
+            else IsEnteringTaskName = true;
+        }
+
+        [RelayCommand]
+        private void RenameGroup()
+        {
+            if (IsRenamingGroup) IsRenamingGroup = false;
+            else IsRenamingGroup = true;
+        }
+
+        [RelayCommand]
+        private void RenameTask(int taskId)
+        {
+            if (IsRenamingTask) IsRenamingTask = false;
+            else IsRenamingTask = true;
+
+            TaskIdToRename = taskId;
+
+            using var db = new AppDbContext();
+            var taskService = new TaskService(db);
+            NewTaskName = taskService.GetTaskById(TaskIdToRename).Content;
         }
     }
 }

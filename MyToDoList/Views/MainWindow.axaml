@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+		Width="480" Height="720"
         x:Class="MyToDoList.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Icon="/Assets/avalonia-logo.ico"
@@ -13,130 +14,340 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <StackPanel Margin="10 10">
-        <TextBlock Text="To-Do List" Margin="5 5" FontSize="25" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <DockPanel LastChildFill="True" Margin="10 10">
+
+        <StackPanel DockPanel.Dock="Top">
+            <TextBlock Text="To-Do List" Margin="5 5" FontSize="25" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         
-        <ListBox ItemsSource="{Binding Groups}" 
-                 SelectedItem="{Binding SelectedGroup}"
-                 Margin="0,10">
+            <StackPanel IsVisible="{Binding !IsShowingTasks}">
+				<StackPanel IsVisible="{Binding IsEnteringGroupName}">
+					<TextBlock Text="Add Group of Tasks" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Grid ColumnDefinitions="*,Auto" Margin="5">
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding NewGroupContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Margin="0,0,5,0"
+                                 FontFamily="Faberge"/>
+						<Button Grid.Column="1"
+								Margin="0"
+								FontFamily="Faberge"
+								Command="{Binding AddGroupCommand}"
+								CornerRadius="10"
+								>
 
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Horizontal" Spacing="5"/>
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
+							<PathIcon
+									Width="40" Height="40"
+									Data="M12 7C12.4142 7 12.75 7.33579 12.75 7.75V11.25H16.25C16.6642 11.25 17 11.5858 17 12C17 12.4142 16.6642 12.75 16.25 12.75H12.75V16.25C12.75 16.6642 12.4142 17 12 17C11.5858 17 11.25 16.6642 11.25 16.25V12.75H7.75C7.33579 12.75 7 12.4142 7 12C7 11.5858 7.33579 11.25 7.75 11.25H11.25V7.75C11.25 7.33579 11.5858 7 12 7Z M3 6.25C3 4.45507 4.45507 3 6.25 3H17.75C19.5449 3 21 4.45507 21 6.25V17.75C21 19.5449 19.5449 21 17.75 21H6.25C4.45507 21 3 19.5449 3 17.75V6.25ZM6.25 4.5C5.2835 4.5 4.5 5.2835 4.5 6.25V17.75C4.5 18.7165 5.2835 19.5 6.25 19.5H17.75C18.7165 19.5 19.5 18.7165 19.5 17.75V6.25C19.5 5.2835 18.7165 4.5 17.75 4.5H6.25Z"
+								>
+							</PathIcon>
+						</Button>
+				
+                    </Grid>
+				</StackPanel>
+            </StackPanel>
 
-            <ListBox.Styles>
-                <Style Selector="ListBoxItem">
-                    <Setter Property="Padding" Value="0"/>
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                </Style>
-                <Style Selector="ListBoxItem > Border">
-                    <Setter Property="Background" Value="#E0E0E0"/>
-                </Style>
-                <Style Selector="ListBoxItem:selected > Border">
-                    <Setter Property="Background" Value="#4CAF50"/>
-                </Style>
-                <Style Selector="ListBoxItem:pointerover > Border">
-                    <Setter Property="Background" Value="#BDBDBD"/>
-                </Style>
-                <Style Selector="ListBoxItem:selected TextBlock">
-                    <Setter Property="Foreground" Value="White"/>
-                </Style>
-            </ListBox.Styles>
+			<StackPanel IsVisible="{Binding IsRenamingGroup}">
+				<TextBlock Text="Enter new group name" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+				<Grid ColumnDefinitions="*,Auto" Margin="5">
+					<TextBox Grid.Column="0"
+							 Text="{Binding NewGroupName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+							 Margin="0,0,5,0"
+							 FontFamily="Faberge"/>
+					<Button Grid.Column="1"
+							Margin="0"
+							FontFamily="Faberge"
+							Command="{Binding EditGroupCommand}"
+							>
+						<PathIcon
+							Width="40" Height="40"
+							Data="M20.0624471,8.44531708 C21.3187966,9.70246962 21.3181456,11.7400656 20.060993,12.9964151 L12.9378099,20.1075964 C12.6748336,20.3701297 12.3509291,20.5634444 11.9950254,20.6702751 L7.7020125,21.9588974 C7.17304403,22.1176765 6.61551448,21.8175787 6.4567354,21.2886102 C6.39849549,21.0945854 6.40055641,20.8874478 6.4626453,20.6946202 L7.82404878,16.466551 C7.93368607,16.1260538 8.12292759,15.8166043 8.37607629,15.5638705 L15.5089127,8.44272265 C16.767237,7.18646041 18.8055552,7.18762176 20.0624471,8.44531708 Z M16.5687028,9.50425223 L9.43586633,16.6254001 C9.35148343,16.7096447 9.28840293,16.8127945 9.25185716,16.9262936 L8.18207614,20.2486798 L11.563783,19.2336018 C11.6824175,19.1979916 11.7903857,19.1335534 11.8780445,19.0460423 L19.0000352,11.936052 C19.6718508,11.2646659 19.6721983,10.1768173 19.0014481,9.50563832 C18.3299482,8.83370918 17.2409679,8.83308872 16.5687028,9.50425223 Z M8.1508398,2.36975012 L8.20132289,2.47486675 L11.4537996,10.724 L10.2967996,11.879 L9.5557996,10 L5.4427996,10 L4.44747776,12.5208817 C4.30788849,12.8739875 3.9301318,13.0620782 3.57143476,12.9736808 L3.47427411,12.9426336 C3.1211683,12.8030443 2.93307758,12.4252876 3.02147501,12.0665906 L3.05252224,11.9694299 L6.80613337,2.47427411 C7.0415216,1.87883471 7.84863764,1.84414583 8.1508398,2.36975012 Z M7.50274363,4.79226402 L6.0357996,8.5 L8.9637996,8.5 L7.50274363,4.79226402 Z"
+						>
+						</PathIcon>
+					</Button>
 
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Border Padding="15,8"
-                            CornerRadius="20"
-                            >
-            
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock Text="{Binding Name}" FontFamily="Faberge"
-                                       HorizontalAlignment="Center"/>
-               
-                        </StackPanel>
-            
-                        <Border.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="Delete Group"
-                                          FontFamily="Faberge"
-                                          Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).RemoveGroupCommand}"
-                                          CommandParameter="{Binding}"/>
-                            </ContextMenu>
-                        </Border.ContextMenu>
-                    </Border>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+				</Grid>
+			</StackPanel>
 
-        <TextBlock Text="Add Group of Tasks" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Grid ColumnDefinitions="*,Auto" Margin="5">
-            <TextBox Grid.Column="0" 
-                     Text="{Binding NewGroupContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                     Margin="0,0,5,0"
-                     FontFamily="Faberge"/>
-    
-            <Button Grid.Column="1" 
-                    Content="Add" 
-                    Margin="0"
-                    FontFamily="Faberge" 
-                    Command="{Binding AddGroupCommand}" />
+			<StackPanel IsVisible="{Binding IsRenamingTask}">
+				<TextBlock Text="Enter new task name" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+				<Grid ColumnDefinitions="*,Auto" Margin="5">
+					<TextBox Grid.Column="0"
+							 Text="{Binding NewTaskName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+							 Margin="0,0,5,0"
+							 FontFamily="Faberge"/>
+					<Button Grid.Column="1"
+							Content="Rename"
+							Margin="0"
+							FontFamily="Faberge"
+							Command="{Binding EditTaskCommand}"
+							CommandParameter="{Binding TaskIdToRename}">
+						<PathIcon
+							Width="40" Height="40"
+							Data="M20.0624471,8.44531708 C21.3187966,9.70246962 21.3181456,11.7400656 20.060993,12.9964151 L12.9378099,20.1075964 C12.6748336,20.3701297 12.3509291,20.5634444 11.9950254,20.6702751 L7.7020125,21.9588974 C7.17304403,22.1176765 6.61551448,21.8175787 6.4567354,21.2886102 C6.39849549,21.0945854 6.40055641,20.8874478 6.4626453,20.6946202 L7.82404878,16.466551 C7.93368607,16.1260538 8.12292759,15.8166043 8.37607629,15.5638705 L15.5089127,8.44272265 C16.767237,7.18646041 18.8055552,7.18762176 20.0624471,8.44531708 Z M16.5687028,9.50425223 L9.43586633,16.6254001 C9.35148343,16.7096447 9.28840293,16.8127945 9.25185716,16.9262936 L8.18207614,20.2486798 L11.563783,19.2336018 C11.6824175,19.1979916 11.7903857,19.1335534 11.8780445,19.0460423 L19.0000352,11.936052 C19.6718508,11.2646659 19.6721983,10.1768173 19.0014481,9.50563832 C18.3299482,8.83370918 17.2409679,8.83308872 16.5687028,9.50425223 Z M8.1508398,2.36975012 L8.20132289,2.47486675 L11.4537996,10.724 L10.2967996,11.879 L9.5557996,10 L5.4427996,10 L4.44747776,12.5208817 C4.30788849,12.8739875 3.9301318,13.0620782 3.57143476,12.9736808 L3.47427411,12.9426336 C3.1211683,12.8030443 2.93307758,12.4252876 3.02147501,12.0665906 L3.05252224,11.9694299 L6.80613337,2.47427411 C7.0415216,1.87883471 7.84863764,1.84414583 8.1508398,2.36975012 Z M7.50274363,4.79226402 L6.0357996,8.5 L8.9637996,8.5 L7.50274363,4.79226402 Z"
+						>
+						</PathIcon>
+					</Button>
+
+				</Grid>
+			</StackPanel>
+        
+            <StackPanel IsVisible="{Binding IsShowingTasks}">
+				<StackPanel IsVisible="{Binding IsEnteringTaskName}">
+					<TextBlock Text="Add Task" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<Grid ColumnDefinitions="*,Auto" Margin="5">
+						<TextBox Grid.Column="0"
+								 Text="{Binding NewItemContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+								 Margin="0,0,5,0"
+								 FontFamily="Faberge"/>
+						<Button Grid.Column="1"
+								Margin="0"
+								FontFamily="Faberge"
+								Command="{Binding AddItemCommand}"
+								CornerRadius="10"
+								>
+
+							<PathIcon
+									Width="40" Height="40"
+									Data="M12 7C12.4142 7 12.75 7.33579 12.75 7.75V11.25H16.25C16.6642 11.25 17 11.5858 17 12C17 12.4142 16.6642 12.75 16.25 12.75H12.75V16.25C12.75 16.6642 12.4142 17 12 17C11.5858 17 11.25 16.6642 11.25 16.25V12.75H7.75C7.33579 12.75 7 12.4142 7 12C7 11.5858 7.33579 11.25 7.75 11.25H11.25V7.75C11.25 7.33579 11.5858 7 12 7Z M3 6.25C3 4.45507 4.45507 3 6.25 3H17.75C19.5449 3 21 4.45507 21 6.25V17.75C21 19.5449 19.5449 21 17.75 21H6.25C4.45507 21 3 19.5449 3 17.75V6.25ZM6.25 4.5C5.2835 4.5 4.5 5.2835 4.5 6.25V17.75C4.5 18.7165 5.2835 19.5 6.25 19.5H17.75C18.7165 19.5 19.5 18.7165 19.5 17.75V6.25C19.5 5.2835 18.7165 4.5 17.75 4.5H6.25Z"
+								>
+							</PathIcon>
+						</Button>
+					</Grid>
+				</StackPanel>
+            </StackPanel>
+        </StackPanel>
+			
+	    <Button DockPanel.Dock="Bottom"
+                HorizontalAlignment="Right"
+		        Width="60"
+		        Height="60"
+				Margin="20"
+		        CornerRadius="30"
+			    Background="#CC80FF"
+				Command="{Binding NewGroupCommand}"
+				IsVisible="{Binding IsShowingGroups}">
+
+			<PathIcon
+					Width="40" Height="40"
+					Data="M17.0606622,9 C17.8933043,9 18.7000032,9.27703406 19.3552116,9.78392956 L19.5300545,9.92783739 L22.116207,12.1907209 C22.306094,12.356872 22.5408581,12.4608817 22.7890575,12.4909364 L22.9393378,12.5 L40.25,12.5 C42.2542592,12.5 43.8912737,14.0723611 43.994802,16.0508414 L44,16.25 L44.0009146,24.0563927 C43.2471782,23.3816422 42.4076405,22.8007736 41.500684,22.3321695 L41.5,16.25 C41.5,15.6027913 41.0081253,15.0704661 40.3778052,15.0064536 L40.25,15 L22.8474156,14.9988741 L20.7205012,17.6147223 C20.0558881,18.4327077 19.0802671,18.9305178 18.0350306,18.993257 L17.8100737,19 L6.5,18.999 L6.5,35.25 C6.5,35.8972087 6.99187466,36.4295339 7.62219476,36.4935464 L7.75,36.5 L24.5185779,36.5004632 C24.786765,37.3812299 25.1535218,38.2190449 25.6059991,39.0010592 L7.75,39 C5.74574083,39 4.10872626,37.4276389 4.00519801,35.4491586 L4,35.25 L4,12.75 C4,10.7457408 5.57236105,9.10872626 7.55084143,9.00519801 L7.75,9 L17.0606622,9 Z M17.0606622,11.5 L7.75,11.5 C7.10279131,11.5 6.5704661,11.9918747 6.50645361,12.6221948 L6.5,12.75 L6.5,16.499 L17.8100737,16.5 C18.1394331,16.5 18.4534488,16.3701335 18.6858203,16.1419575 L18.7802162,16.0382408 L20.415,14.025 L17.883793,11.8092791 C17.693906,11.643128 17.4591419,11.5391183 17.2109425,11.5090636 L17.0606622,11.5 Z M36,23 C41.5228475,23 46,27.4771525 46,33 C46,38.5228475 41.5228475,43 36,43 C30.4771525,43 26,38.5228475 26,33 C26,27.4771525 30.4771525,23 36,23 Z M36,27 C35.4871642,27 35.0644928,27.3860402 35.0067277,27.8833789 L35,28 L35,32 L31,32 C30.4871642,32 30.0644928,32.3860402 30.0067277,32.8833789 L30,33 C30,33.5128358 30.3860402,33.9355072 30.8833789,33.9932723 L31,34 L35,34 L35,38 C35,38.5128358 35.3860402,38.9355072 35.8833789,38.9932723 L36,39 C36.5128358,39 36.9355072,38.6139598 36.9932723,38.1166211 L37,38 L37,34 L41,34 C41.5128358,34 41.9355072,33.6139598 41.9932723,33.1166211 L42,33 C42,32.4871642 41.6139598,32.0644928 41.1166211,32.0067277 L41,32 L37,32 L37,28 C37,27.4871642 36.6139598,27.0644928 36.1166211,27.0067277 L36,27 Z"
+				>
+			</PathIcon>
+		
+		</Button>
+
+		<Button DockPanel.Dock="Bottom"
+                HorizontalAlignment="Right"
+		        Width="60"
+		        Height="60"
+				Margin="20"
+		        CornerRadius="30"
+			    Background="#1FB5B8"
+				Command="{Binding BackToGroupsCommand}"
+				IsVisible="{Binding IsEnteringGroupName}">
+
+			<PathIcon
+					Width="40" Height="40"
+					Data="M8 6.75C8 6.33579 8.33578 6 8.75 6H15.75C18.0865 6 20.0117 6.78107 21.25 8.01578C22.4814 9.2436 23 10.8763 23 12.5C23 14.1237 22.4814 15.7564 21.25 16.9842C20.0117 18.2189 18.0865 19 15.75 19H7.56066L10.7803 22.2197C11.0732 22.5126 11.0732 22.9874 10.7803 23.2803C10.4874 23.5732 10.0126 23.5732 9.71967 23.2803L5.21967 18.7803C5.07902 18.6397 5 18.4489 5 18.25C5 18.0511 5.07902 17.8603 5.21967 17.7197L9.71967 13.2197C10.0126 12.9268 10.4874 12.9268 10.7803 13.2197C11.0732 13.5126 11.0732 13.9874 10.7803 14.2803L7.56066 17.5H15.75C17.7385 17.5 19.1758 16.8436 20.1 15.922C21.0311 14.9936 21.5 13.7513 21.5 12.5C21.5 11.2487 21.0311 10.0064 20.1 9.07797C19.1758 8.15643 17.7385 7.5 15.75 7.5H8.75C8.33578 7.5 8 7.16421 8 6.75Z"
+				>
+			</PathIcon>
+
+		</Button>
+
+		<StackPanel 
+			Orientation="Horizontal"
+			DockPanel.Dock="Bottom" 
+			HorizontalAlignment="Center">
+			<Button
+					Width="60"
+					Height="60"
+					Margin="20"
+					CornerRadius="30"
+					Background="#1FB5B8"
+					Command="{Binding RemoveGroupCommand}"
+					CommandParameter="{Binding CurrentGroup}"
+					IsVisible="{Binding IsShowingTasks}">
+
+				<PathIcon
+					Width="40" Height="40"
+					Data="M24,7.25 C27.1017853,7.25 29.629937,9.70601719 29.7458479,12.7794443 L29.75,13 L37,13 C37.6903559,13 38.25,13.5596441 38.25,14.25 C38.25,14.8972087 37.7581253,15.4295339 37.1278052,15.4935464 L37,15.5 L35.909,15.5 L34.2058308,38.0698451 C34.0385226,40.2866784 32.1910211,42 29.9678833,42 L18.0321167,42 C15.8089789,42 13.9614774,40.2866784 13.7941692,38.0698451 L12.09,15.5 L11,15.5 C10.3527913,15.5 9.8204661,15.0081253 9.75645361,14.3778052 L9.75,14.25 C9.75,13.6027913 10.2418747,13.0704661 10.8721948,13.0064536 L11,13 L18.25,13 C18.25,9.82436269 20.8243627,7.25 24,7.25 Z M33.4021054,15.5 L14.5978946,15.5 L16.2870795,37.8817009 C16.3559711,38.7945146 17.116707,39.5 18.0321167,39.5 L29.9678833,39.5 C30.883293,39.5 31.6440289,38.7945146 31.7129205,37.8817009 L33.4021054,15.5 Z M27.25,20.75 C27.8972087,20.75 28.4295339,21.2418747 28.4935464,21.8721948 L28.5,22 L28.5,33 C28.5,33.6903559 27.9403559,34.25 27.25,34.25 C26.6027913,34.25 26.0704661,33.7581253 26.0064536,33.1278052 L26,33 L26,22 C26,21.3096441 26.5596441,20.75 27.25,20.75 Z M20.75,20.75 C21.3972087,20.75 21.9295339,21.2418747 21.9935464,21.8721948 L22,22 L22,33 C22,33.6903559 21.4403559,34.25 20.75,34.25 C20.1027913,34.25 19.5704661,33.7581253 19.5064536,33.1278052 L19.5,33 L19.5,22 C19.5,21.3096441 20.0596441,20.75 20.75,20.75 Z M24,9.75 C22.2669685,9.75 20.8507541,11.1064548 20.7551448,12.8155761 L20.75,13 L27.25,13 C27.25,11.2050746 25.7949254,9.75 24,9.75 Z"
+				>
+				</PathIcon>
+
+			</Button>
+
+			<Button
+					Width="60"
+					Height="60"
+					Margin="20"
+					CornerRadius="30"
+					Background="#1FB5B8"
+					Command="{Binding RenameGroupCommand}"
+					IsVisible="{Binding IsShowingTasks}">
+
+				<PathIcon
+					Width="40" Height="40"
+					Data="M20.0624471,8.44531708 C21.3187966,9.70246962 21.3181456,11.7400656 20.060993,12.9964151 L12.9378099,20.1075964 C12.6748336,20.3701297 12.3509291,20.5634444 11.9950254,20.6702751 L7.7020125,21.9588974 C7.17304403,22.1176765 6.61551448,21.8175787 6.4567354,21.2886102 C6.39849549,21.0945854 6.40055641,20.8874478 6.4626453,20.6946202 L7.82404878,16.466551 C7.93368607,16.1260538 8.12292759,15.8166043 8.37607629,15.5638705 L15.5089127,8.44272265 C16.767237,7.18646041 18.8055552,7.18762176 20.0624471,8.44531708 Z M16.5687028,9.50425223 L9.43586633,16.6254001 C9.35148343,16.7096447 9.28840293,16.8127945 9.25185716,16.9262936 L8.18207614,20.2486798 L11.563783,19.2336018 C11.6824175,19.1979916 11.7903857,19.1335534 11.8780445,19.0460423 L19.0000352,11.936052 C19.6718508,11.2646659 19.6721983,10.1768173 19.0014481,9.50563832 C18.3299482,8.83370918 17.2409679,8.83308872 16.5687028,9.50425223 Z M8.1508398,2.36975012 L8.20132289,2.47486675 L11.4537996,10.724 L10.2967996,11.879 L9.5557996,10 L5.4427996,10 L4.44747776,12.5208817 C4.30788849,12.8739875 3.9301318,13.0620782 3.57143476,12.9736808 L3.47427411,12.9426336 C3.1211683,12.8030443 2.93307758,12.4252876 3.02147501,12.0665906 L3.05252224,11.9694299 L6.80613337,2.47427411 C7.0415216,1.87883471 7.84863764,1.84414583 8.1508398,2.36975012 Z M7.50274363,4.79226402 L6.0357996,8.5 L8.9637996,8.5 L7.50274363,4.79226402 Z"
+				>
+				</PathIcon>
+
+			</Button>
+
+			<Button
+					Width="60"
+					Height="60"
+					Margin="20"
+					CornerRadius="30"
+					Background="#1FB5B8"
+					Command="{Binding BackToGroupsCommand}"
+					IsVisible="{Binding IsShowingTasks}">
+
+				<PathIcon
+					Width="40" Height="40"
+					Data="M8 6.75C8 6.33579 8.33578 6 8.75 6H15.75C18.0865 6 20.0117 6.78107 21.25 8.01578C22.4814 9.2436 23 10.8763 23 12.5C23 14.1237 22.4814 15.7564 21.25 16.9842C20.0117 18.2189 18.0865 19 15.75 19H7.56066L10.7803 22.2197C11.0732 22.5126 11.0732 22.9874 10.7803 23.2803C10.4874 23.5732 10.0126 23.5732 9.71967 23.2803L5.21967 18.7803C5.07902 18.6397 5 18.4489 5 18.25C5 18.0511 5.07902 17.8603 5.21967 17.7197L9.71967 13.2197C10.0126 12.9268 10.4874 12.9268 10.7803 13.2197C11.0732 13.5126 11.0732 13.9874 10.7803 14.2803L7.56066 17.5H15.75C17.7385 17.5 19.1758 16.8436 20.1 15.922C21.0311 14.9936 21.5 13.7513 21.5 12.5C21.5 11.2487 21.0311 10.0064 20.1 9.07797C19.1758 8.15643 17.7385 7.5 15.75 7.5H8.75C8.33578 7.5 8 7.16421 8 6.75Z"
+				>
+				</PathIcon>
+
+			</Button>
+
+			<Button 
+				Width="60"
+				Height="60"
+				Margin="20"
+				CornerRadius="30"
+				Background="#1FB5B8"
+				Command="{Binding NewTaskCommand}"
+				IsVisible="{Binding IsShowingTasks}">
+
+				<PathIcon
+					Width="40" Height="40"
+					Data="M12 7C12.4142 7 12.75 7.33579 12.75 7.75V11.25H16.25C16.6642 11.25 17 11.5858 17 12C17 12.4142 16.6642 12.75 16.25 12.75H12.75V16.25C12.75 16.6642 12.4142 17 12 17C11.5858 17 11.25 16.6642 11.25 16.25V12.75H7.75C7.33579 12.75 7 12.4142 7 12C7 11.5858 7.33579 11.25 7.75 11.25H11.25V7.75C11.25 7.33579 11.5858 7 12 7Z M3 6.25C3 4.45507 4.45507 3 6.25 3H17.75C19.5449 3 21 4.45507 21 6.25V17.75C21 19.5449 19.5449 21 17.75 21H6.25C4.45507 21 3 19.5449 3 17.75V6.25ZM6.25 4.5C5.2835 4.5 4.5 5.2835 4.5 6.25V17.75C4.5 18.7165 5.2835 19.5 6.25 19.5H17.75C18.7165 19.5 19.5 18.7165 19.5 17.75V6.25C19.5 5.2835 18.7165 4.5 17.75 4.5H6.25Z"
+				>
+				</PathIcon>
+
+			</Button>
+			
+		</StackPanel>
+		
+		
+
+        <Grid>
+           
+            <Grid IsVisible="{Binding IsShowingGroups}">
+                <ListBox ItemsSource="{Binding Groups}"
+                         SelectedItem="{Binding CurrentGroup}"
+                         Margin="0,10">
+
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" Spacing="5"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+
+                    <ListBox.Styles>
+                        <Style Selector="ListBoxItem">
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        </Style>
+                        <Style Selector="ListBoxItem > Border">
+                            <Setter Property="Background" Value="#E0E0E0"/>
+                        </Style>
+                        <Style Selector="ListBoxItem:selected > Border">
+                            <Setter Property="Background" Value="#4CAF50"/>
+                        </Style>
+                        <Style Selector="ListBoxItem:pointerover > Border">
+                            <Setter Property="Background" Value="#BDBDBD"/>
+                        </Style>
+                        <Style Selector="ListBoxItem:selected TextBlock">
+                            <Setter Property="Foreground" Value="White"/>
+                        </Style>
+                    </ListBox.Styles>
+
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="15,8" CornerRadius="20">
+                                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="8" >
+                                    <TextBlock Text="{Binding Name}" FontFamily="Faberge" FontSize="20" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+
+            <Grid IsVisible="{Binding IsShowingTasks}" RowDefinitions="Auto, *">
+                
+                <Grid>
+                    <TextBlock Text="{Binding CurrentGroup.Name}"
+                               FontSize="25"
+                               FontFamily="Faberge"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+							   Margin="10"/>
+                </Grid>
+
+                <ListBox Grid.Row="1" ItemsSource="{Binding Tasks}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Classes.completedTask="{Binding IsCompleted}"
+                                    Padding="0" Margin="0,2"
+                                    CornerRadius="5">
+                                <Grid ColumnDefinitions="*,Auto,Auto,Auto" Margin="5">
+                                    <TextBlock Text="{Binding Content}" Grid.Column="0" FontSize="18" FontFamily="Faberge" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                                    <Button Grid.Column="1"
+                                            Margin="5"
+                                            Width="40" Height="40"
+                                            UseLayoutRounding="True"
+                                            CornerRadius="20"
+                                            FontFamily="Faberge"
+                                            Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).ToggleTaskCommand}"
+                                            CommandParameter="{Binding}">
+										<PathIcon
+					                        Width="20" Height="20"
+					                        Data="M8.5 3.5C5.73858 3.5 3.5 5.73858 3.5 8.5C3.5 11.1847 5.61589 13.3752 8.27104 13.4949C8.13865 13.9732 8.05246 14.4707 8.01758 14.9824C4.65301 14.7355 2 11.9276 2 8.5C2 4.91015 4.91015 2 8.5 2C11.9276 2 14.7355 4.65301 14.9824 8.01758C14.4707 8.05246 13.9732 8.13865 13.4949 8.27104C13.3752 5.61589 11.1847 3.5 8.5 3.5Z M14.2777 13.2341C13.9834 12.9426 13.5086 12.9449 13.2171 13.2392C12.9256 13.5335 12.9279 14.0084 13.2223 14.2999L14.4368 15.5026L13.2197 16.7198C12.9268 17.0127 12.9268 17.4875 13.2197 17.7804C13.5126 18.0733 13.9875 18.0733 14.2803 17.7804L15.4994 16.5613L16.7148 17.7797C17.0074 18.073 17.4822 18.0735 17.7755 17.781C18.0687 17.4884 18.0693 17.0136 17.7768 16.7203L16.562 15.5026L17.7742 14.2993C18.0681 14.0075 18.0699 13.5326 17.7781 13.2386C17.4863 12.9447 17.0114 12.9429 16.7174 13.2347L15.4994 14.4439L14.2777 13.2341Z M15.5 9C11.9101 9 9 11.9101 9 15.5C9 19.0899 11.9101 22 15.5 22C19.0899 22 22 19.0899 22 15.5C22 11.9101 19.0899 9 15.5 9ZM10.5 15.5C10.5 12.7386 12.7386 10.5 15.5 10.5C18.2614 10.5 20.5 12.7386 20.5 15.5C20.5 18.2614 18.2614 20.5 15.5 20.5C12.7386 20.5 10.5 18.2614 10.5 15.5Z M11.2803 6.71967C11.5732 7.01256 11.5732 7.48744 11.2803 7.78033L8.28026 10.7803C8.13954 10.921 7.94867 11.0001 7.74966 11C7.55066 10.9999 7.35984 10.9208 7.21922 10.78L5.71953 9.27812C5.42685 8.98502 5.42719 8.51014 5.72029 8.21746C6.0134 7.92477 6.48827 7.92511 6.78095 8.21822L7.75031 9.18896L10.2196 6.71967C10.5125 6.42678 10.9874 6.42678 11.2803 6.71967Z"
+				>
+										</PathIcon>
+									</Button>
+									<Button Grid.Column="2"
+                                            Margin="5"
+                                            Width="40" Height="40"
+                                            UseLayoutRounding="True"
+                                            CornerRadius="20"
+                                            FontFamily="Faberge"
+                                            Command="{Binding $parent[Window].DataContext.RenameTaskCommand}"
+											CommandParameter ="{Binding Id}"
+                                            >
+										<PathIcon
+											Width="20" Height="20"
+											Data="M20.0624471,8.44531708 C21.3187966,9.70246962 21.3181456,11.7400656 20.060993,12.9964151 L12.9378099,20.1075964 C12.6748336,20.3701297 12.3509291,20.5634444 11.9950254,20.6702751 L7.7020125,21.9588974 C7.17304403,22.1176765 6.61551448,21.8175787 6.4567354,21.2886102 C6.39849549,21.0945854 6.40055641,20.8874478 6.4626453,20.6946202 L7.82404878,16.466551 C7.93368607,16.1260538 8.12292759,15.8166043 8.37607629,15.5638705 L15.5089127,8.44272265 C16.767237,7.18646041 18.8055552,7.18762176 20.0624471,8.44531708 Z M16.5687028,9.50425223 L9.43586633,16.6254001 C9.35148343,16.7096447 9.28840293,16.8127945 9.25185716,16.9262936 L8.18207614,20.2486798 L11.563783,19.2336018 C11.6824175,19.1979916 11.7903857,19.1335534 11.8780445,19.0460423 L19.0000352,11.936052 C19.6718508,11.2646659 19.6721983,10.1768173 19.0014481,9.50563832 C18.3299482,8.83370918 17.2409679,8.83308872 16.5687028,9.50425223 Z M8.1508398,2.36975012 L8.20132289,2.47486675 L11.4537996,10.724 L10.2967996,11.879 L9.5557996,10 L5.4427996,10 L4.44747776,12.5208817 C4.30788849,12.8739875 3.9301318,13.0620782 3.57143476,12.9736808 L3.47427411,12.9426336 C3.1211683,12.8030443 2.93307758,12.4252876 3.02147501,12.0665906 L3.05252224,11.9694299 L6.80613337,2.47427411 C7.0415216,1.87883471 7.84863764,1.84414583 8.1508398,2.36975012 Z M7.50274363,4.79226402 L6.0357996,8.5 L8.9637996,8.5 L7.50274363,4.79226402 Z"
+														>
+										</PathIcon>
+									</Button>
+									<Button Grid.Column="3"
+                                            Margin="5"
+                                            Width="40" Height="40"
+                                            UseLayoutRounding="True"
+                                            CornerRadius="20"
+                                            FontFamily="Faberge"
+                                            Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).RemoveItemCommand}"
+                                            CommandParameter="{Binding}">
+										<PathIcon
+											Width="20" Height="20"
+											Data="M24,7.25 C27.1017853,7.25 29.629937,9.70601719 29.7458479,12.7794443 L29.75,13 L37,13 C37.6903559,13 38.25,13.5596441 38.25,14.25 C38.25,14.8972087 37.7581253,15.4295339 37.1278052,15.4935464 L37,15.5 L35.909,15.5 L34.2058308,38.0698451 C34.0385226,40.2866784 32.1910211,42 29.9678833,42 L18.0321167,42 C15.8089789,42 13.9614774,40.2866784 13.7941692,38.0698451 L12.09,15.5 L11,15.5 C10.3527913,15.5 9.8204661,15.0081253 9.75645361,14.3778052 L9.75,14.25 C9.75,13.6027913 10.2418747,13.0704661 10.8721948,13.0064536 L11,13 L18.25,13 C18.25,9.82436269 20.8243627,7.25 24,7.25 Z M33.4021054,15.5 L14.5978946,15.5 L16.2870795,37.8817009 C16.3559711,38.7945146 17.116707,39.5 18.0321167,39.5 L29.9678833,39.5 C30.883293,39.5 31.6440289,38.7945146 31.7129205,37.8817009 L33.4021054,15.5 Z M27.25,20.75 C27.8972087,20.75 28.4295339,21.2418747 28.4935464,21.8721948 L28.5,22 L28.5,33 C28.5,33.6903559 27.9403559,34.25 27.25,34.25 C26.6027913,34.25 26.0704661,33.7581253 26.0064536,33.1278052 L26,33 L26,22 C26,21.3096441 26.5596441,20.75 27.25,20.75 Z M20.75,20.75 C21.3972087,20.75 21.9295339,21.2418747 21.9935464,21.8721948 L22,22 L22,33 C22,33.6903559 21.4403559,34.25 20.75,34.25 C20.1027913,34.25 19.5704661,33.7581253 19.5064536,33.1278052 L19.5,33 L19.5,22 C19.5,21.3096441 20.0596441,20.75 20.75,20.75 Z M24,9.75 C22.2669685,9.75 20.8507541,11.1064548 20.7551448,12.8155761 L20.75,13 L27.25,13 C27.25,11.2050746 25.7949254,9.75 24,9.75 Z"
+														>
+										</PathIcon>
+									</Button>
+                                </Grid>
+                                <Border.Styles>
+                                    <Style Selector="Border.completedTask">
+                                        <Setter Property="Background" Value="#90EE90"/>
+                                    </Style>
+                                </Border.Styles>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+
         </Grid>
-        
-        <TextBlock Text="Add Task" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Grid ColumnDefinitions="*,Auto" Margin="5">
-            <TextBox Grid.Column="0" 
-                     Text="{Binding NewItemContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                     Margin="0,0,5,0"
-                     FontFamily="Faberge"/>
-    
-            <Button Grid.Column="1" 
-                    Content="Add" 
-                    Margin="0"
-                    FontFamily="Faberge" 
-                    Command="{Binding AddItemCommand}" />
-        </Grid>
-        
-        <ListBox ItemsSource="{Binding Tasks}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Border Classes.completedTask="{Binding IsCompleted}"
-                    Padding="10" Margin="0,2"
-                    CornerRadius="5">
-                        <Grid ColumnDefinitions="*,Auto,Auto" Margin="5">
-                            <TextBlock Text="{Binding Content}" Grid.Column="0" FontSize="18" FontFamily="Faberge" Margin="0,0,5,0"/>
-                            <Button Grid.Column="1" 
-                                Content="Mark as done" 
-                                Margin="0"
-                                Width="100"
-                                UseLayoutRounding="True"
-                                CornerRadius="25"
-                                FontFamily="Faberge"
-                                Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).ToggleTaskCommand}"
-                                CommandParameter="{Binding}" />
-                            <Button Grid.Column="2" 
-                                Content="Delete" 
-                                Margin="0"
-                                Width="60"
-                                UseLayoutRounding="True"
-                                CornerRadius="25"
-                                FontFamily="Faberge" 
-                                Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).RemoveItemCommand}"
-                                CommandParameter="{Binding}"
-                            />
-                        </Grid>
-                        <Border.Styles>
-                            <Style Selector="Border.completedTask">
-                                <Setter Property="Background" Value="#90EE90"/>
-                            </Style>
-                        </Border.Styles>
-                    </Border>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        
-    </StackPanel>
-    
 
+    </DockPanel>
 </Window>

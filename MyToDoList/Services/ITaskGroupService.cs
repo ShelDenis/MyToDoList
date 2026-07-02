@@ -11,5 +11,7 @@ namespace MyToDoList.Services
         List<TaskGroup> GetAllTaskGroups();
         void AddTaskGroup(TaskGroup taskGroup);
         void DeleteTaskGroup(int taskGrId);
+
+        void EditGroup(int taskGrId, string newName);
     }
 }
