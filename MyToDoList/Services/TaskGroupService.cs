@@ -65,15 +65,18 @@ namespace MyToDoList.Services
 
         public List<TaskGroup> SearchTaskGroups(string s)
         {
-            var NecGroups = _db.TaskGroups.Where(g => g.Name.Contains(s)).ToList();
-            var tasksByTName = _db.Tasks.Where(t => t.Content.Contains(s)).ToList();
-            var groupIdsByTName = tasksByTName.Select(t => t.GroupId).ToList();
-            foreach (int ind in groupIdsByTName)
-            {
-                NecGroups.Add(_db.TaskGroups.Where(g => g.Id == ind).First());
-            }
+            s = s.ToLower();
 
-            return NecGroups;
+            var allGroups = _db.TaskGroups.ToList();
+            var allTasks = _db.Tasks.ToList();
+
+            var groupsByName = allGroups.Where(g => g.Name?.ToLower().Contains(s) == true).ToList();
+
+            var groupIdsByTask = allTasks.Where(t => t.Content?.ToLower().Contains(s) == true).Select(t => t.GroupId).ToList();
+
+            var groupsByTask = allGroups.Where(g => groupIdsByTask.Contains(g.Id)).ToList();
+
+            return groupsByName.Concat(groupsByTask).ToList();
         }
     }
 }
