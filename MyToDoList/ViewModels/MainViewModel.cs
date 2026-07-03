@@ -123,7 +123,9 @@ namespace MyToDoList.ViewModels
 
         partial void OnSearchValChanged(string? value)
         {
+            if (!IsShowingGroups) return;
             Search(value ?? string.Empty);
+            IsSearching = true;
         }
 
         [RelayCommand(CanExecute = nameof(CanAddTask))]
@@ -288,6 +290,7 @@ namespace MyToDoList.ViewModels
             LoadTasks();
             IsShowingGroups = false;
             IsSearching = false;
+            SearchVal = string.Empty;
         }
 
         [RelayCommand]
