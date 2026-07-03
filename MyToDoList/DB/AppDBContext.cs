@@ -12,6 +12,8 @@ namespace MyToDoList.DB
     {
         public AppDbContext() { }
 
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
         public DbSet<Task> Tasks { get; set; } = null!;
         public DbSet<TaskGroup> TaskGroups { get; set; } = null!;
 

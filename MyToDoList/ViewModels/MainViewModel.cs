@@ -14,6 +14,20 @@ namespace MyToDoList.ViewModels
 {
     public partial class MainViewModel : ViewModelBase
     {
+        private readonly AppDbContext _db;
+        private readonly TaskService _taskService;
+        private readonly TaskGroupService _groupService;
+
+        public MainViewModel() : this(new AppDbContext()) { }
+
+        public MainViewModel(AppDbContext db)
+        {
+            _db = db;
+            _taskService = new TaskService(db);
+            _groupService = new TaskGroupService(db);
+            LoadGroups();
+        }
+
         public ObservableCollection<Task> Tasks { get; } = new();
         public ObservableCollection<TaskGroup> Groups { get; } = new();
 
@@ -57,19 +71,11 @@ namespace MyToDoList.ViewModels
         [ObservableProperty]
         private int _taskIdToRename;
 
-
-        public MainViewModel()
-        {
-            LoadGroups();
-        }
-
         private void LoadGroups()
         {
-            using var db = new AppDbContext();
-            var groupService = new TaskGroupService(db);
 
             Groups.Clear();
-            foreach (var group in groupService.GetAllTaskGroups())
+            foreach (var group in _groupService.GetAllTaskGroups())
             {
                 Groups.Add(group);
             }
@@ -85,11 +91,8 @@ namespace MyToDoList.ViewModels
             else
                 NewGroupName = CurrentGroup.Name;
 
-            using var db = new AppDbContext();
-            var taskService = new TaskService(db);
-
             Tasks.Clear();
-            var tasks = taskService.GetTasksByGroup(CurrentGroup.Id);  
+            var tasks = _taskService.GetTasksByGroup(CurrentGroup.Id);  
 
             foreach (var task in tasks)
             {
@@ -120,13 +123,12 @@ namespace MyToDoList.ViewModels
                 GroupId = CurrentGroup.Id 
             };
 
-            using var db = new AppDbContext();
-            var taskService = new TaskService(db);
-            taskService.AddTask(newTask);
+            _taskService.AddTask(newTask);
 
             Tasks.Add(newTask);
             NewItemContent = null;
             IsEnteringTaskName = false;
+            UpdateGroupDate();
         }
 
         private bool CanAddTask() => !string.IsNullOrWhiteSpace(NewItemContent) && CurrentGroup != null;
@@ -141,9 +143,7 @@ namespace MyToDoList.ViewModels
                 LastChangeAt = DateTime.Now,
             };
 
-            using var db = new AppDbContext();
-            var groupService = new TaskGroupService(db);
-            groupService.AddTaskGroup(newGroup);
+            _groupService.AddTaskGroup(newGroup);
 
             Groups.Add(newGroup);
             NewGroupContent = null;
@@ -158,9 +158,7 @@ namespace MyToDoList.ViewModels
         [RelayCommand(CanExecute = nameof(CanEditGroup))]
         private void EditGroup()
         {
-            using var db = new AppDbContext();
-            var groupService = new TaskGroupService(db);
-            groupService.EditGroup(CurrentGroup!.Id, NewGroupName!);
+            _groupService.EditGroup(CurrentGroup!.Id, NewGroupName!);
 
             foreach (TaskGroup g in Groups)
             {
@@ -177,10 +175,7 @@ namespace MyToDoList.ViewModels
         [RelayCommand(CanExecute = nameof(CanEditTask))]
         private void EditTask()
         {
-            using var db = new AppDbContext();
-            var taskService = new TaskService(db);
-
-            taskService.EditTask(TaskIdToRename, NewTaskName!);
+            _taskService.EditTask(TaskIdToRename, NewTaskName!);
 
             foreach (Task t in Tasks)
             {
@@ -197,9 +192,7 @@ namespace MyToDoList.ViewModels
         [RelayCommand]
         private void RemoveItem(Task task)
         {
-            using var db = new AppDbContext();
-            var taskService = new TaskService(db);
-            taskService.DeleteTask(task);
+            _taskService.DeleteTask(task);
             Tasks.Remove(task);
 
             UpdateGroupDate();
@@ -210,15 +203,10 @@ namespace MyToDoList.ViewModels
         {
             if (task == null) return;
 
-            using var db = new AppDbContext();
-            var taskService = new TaskService(db);
-
             if (task.IsCompleted)
-                taskService.UnMarkAsDone(task.Id);
+                _taskService.UnMarkAsDone(task.Id);
             else
-                taskService.MarkAsDone(task.Id);
-
-            task.IsCompleted = !task.IsCompleted;
+                _taskService.MarkAsDone(task.Id);
 
             UpdateGroupDate();
         }
@@ -239,10 +227,7 @@ namespace MyToDoList.ViewModels
 
             if (result != ButtonResult.Ok)
                 return;
-
-            using var db = new AppDbContext();
-            var groupService = new TaskGroupService(db);
-            groupService.DeleteTaskGroup(group.Id);
+            _groupService.DeleteTaskGroup(group.Id);
 
            
             var tasksToRemove = Tasks.Where(t => t.GroupId == group.Id).ToList();
@@ -312,21 +297,13 @@ namespace MyToDoList.ViewModels
             else IsRenamingTask = true;
 
             TaskIdToRename = taskId;
-
-            using var db = new AppDbContext();
-            var taskService = new TaskService(db);
-            NewTaskName = taskService.GetTaskById(TaskIdToRename).Content;
-
-            UpdateGroupDate();
+            NewTaskName = _taskService.GetTaskById(TaskIdToRename).Content;
         }
 
         public void UpdateGroupDate()
         {
             if (CurrentGroup == null) return;
-
-            using var db = new AppDbContext();
-            var groupService = new TaskGroupService(db);
-            groupService.RefreshLastChanges(CurrentGroup.Id);
+            _groupService.RefreshLastChanges(CurrentGroup.Id);
 
             CurrentGroup.LastChangeAt = DateTime.Now;
         }
