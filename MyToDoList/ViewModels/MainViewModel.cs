@@ -31,6 +31,8 @@ namespace MyToDoList.ViewModels
         public ObservableCollection<Task> Tasks { get; } = new();
         public ObservableCollection<TaskGroup> Groups { get; } = new();
 
+        public ObservableCollection<TaskGroup> SearchedGroups { get; } = new();
+
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(AddItemCommand))]
         private string? _newItemContent;
@@ -46,6 +48,10 @@ namespace MyToDoList.ViewModels
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(EditTaskCommand))]
         private string? _newTaskName;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SearchCommand))]
+        private string? _searchVal;
 
         [ObservableProperty]
         private TaskGroup? _currentGroup = null;
@@ -67,6 +73,9 @@ namespace MyToDoList.ViewModels
 
         [ObservableProperty]
         private bool _isRenamingTask = false;
+
+        [ObservableProperty]
+        private bool _isSearching = false;
 
         [ObservableProperty]
         private int _taskIdToRename;
@@ -107,7 +116,14 @@ namespace MyToDoList.ViewModels
                 IsShowingTasks = true;  
                 LoadTasks();
                 IsShowingGroups = false;
+                IsSearching = false;
+                ClearSearchField();
             }
+        }
+
+        partial void OnSearchValChanged(string? value)
+        {
+            Search(value ?? string.Empty);
         }
 
         [RelayCommand(CanExecute = nameof(CanAddTask))]
@@ -248,6 +264,21 @@ namespace MyToDoList.ViewModels
         }
 
         [RelayCommand]
+        private async void Search(string s)
+        {
+            SearchedGroups.Clear();
+
+            if (string.IsNullOrWhiteSpace(s))
+                return;
+
+            foreach (var group in _groupService.SearchTaskGroups(s))
+            {
+                if (!SearchedGroups.Contains(group))
+                SearchedGroups.Add(group);
+            }
+        }
+
+        [RelayCommand]
         private void SelectGroup(TaskGroup group)
         {
             if (group == null) return;
@@ -256,6 +287,7 @@ namespace MyToDoList.ViewModels
             IsShowingTasks = true;
             LoadTasks();
             IsShowingGroups = false;
+            IsSearching = false;
         }
 
         [RelayCommand]
@@ -298,6 +330,18 @@ namespace MyToDoList.ViewModels
 
             TaskIdToRename = taskId;
             NewTaskName = _taskService.GetTaskById(TaskIdToRename).Content;
+        }
+
+        [RelayCommand]
+        private void StartSearch()
+        {
+            IsSearching = !IsSearching;
+        }
+
+        [RelayCommand]
+        private void ClearSearchField()
+        {
+            SearchVal = string.Empty;
         }
 
         public void UpdateGroupDate()
