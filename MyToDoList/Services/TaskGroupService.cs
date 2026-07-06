@@ -62,5 +62,21 @@ namespace MyToDoList.Services
                 _db.SaveChanges();
             }
         }
+
+        public List<TaskGroup> SearchTaskGroups(string s)
+        {
+            s = s.ToLower();
+
+            var allGroups = _db.TaskGroups.ToList();
+            var allTasks = _db.Tasks.ToList();
+
+            var groupsByName = allGroups.Where(g => g.Name?.ToLower().Contains(s) == true).ToList();
+
+            var groupIdsByTask = allTasks.Where(t => t.Content?.ToLower().Contains(s) == true).Select(t => t.GroupId).ToList();
+
+            var groupsByTask = allGroups.Where(g => groupIdsByTask.Contains(g.Id)).ToList();
+
+            return groupsByName.Concat(groupsByTask).ToList();
+        }
     }
 }
