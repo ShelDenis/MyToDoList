@@ -17,11 +17,26 @@
     <DockPanel LastChildFill="True" Margin="10 10">
 
         <StackPanel DockPanel.Dock="Top">
-            <TextBlock Text="To-Do List" Margin="5 5" FontSize="25" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        
-            <StackPanel IsVisible="{Binding !IsShowingTasks}">
+            <TextBlock Text="{Binding AppTitle}" Margin="5 5" FontSize="25" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+			<ComboBox ItemsSource="{Binding LanguageVM.AvailableLanguages}"
+					  SelectedItem="{Binding LanguageVM.SelectedLanguage}"
+					  HorizontalAlignment="Right"
+					  Width="150"
+					  Margin="0,0,0,10">
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<StackPanel Orientation="Horizontal" Spacing="5">
+							<TextBlock FontFamily="Faberge" Text="{Binding Name}"/>
+						</StackPanel>
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+
+			<StackPanel IsVisible="{Binding !IsShowingTasks}">
 				<StackPanel IsVisible="{Binding IsEnteringGroupName}">
-					<TextBlock Text="Add Group of Tasks" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+					<TextBlock Text="{Binding AddGroupText}" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <Grid ColumnDefinitions="*,Auto" Margin="5">
                         <TextBox Grid.Column="0"
                                  Text="{Binding NewGroupContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -46,7 +61,7 @@
             </StackPanel>
 
 			<StackPanel IsVisible="{Binding IsRenamingGroup}">
-				<TextBlock Text="Enter new group name" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+				<TextBlock Text="{Binding RenameGroupText}" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 				<Grid ColumnDefinitions="*,Auto" Margin="5">
 					<TextBox Grid.Column="0"
 							 Text="{Binding NewGroupName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -68,7 +83,7 @@
 			</StackPanel>
 
 			<StackPanel IsVisible="{Binding IsRenamingTask}">
-				<TextBlock Text="Enter new task name" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+				<TextBlock Text="{Binding RenameTaskText}" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 				<Grid ColumnDefinitions="*,Auto" Margin="5">
 					<TextBox Grid.Column="0"
 							 Text="{Binding NewTaskName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -90,7 +105,7 @@
 			</StackPanel>
 
 			<StackPanel IsVisible="{Binding IsShowingGroups}">
-				<TextBlock Text="Search" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+				<TextBlock Text="{Binding SearchText}" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 				<Grid ColumnDefinitions="*, Auto" Margin="5">
 					<TextBox Grid.Column="0"
 							 Text="{Binding SearchVal, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -112,7 +127,7 @@
         
             <StackPanel IsVisible="{Binding IsShowingTasks}">
 				<StackPanel IsVisible="{Binding IsEnteringTaskName}">
-					<TextBlock Text="Add Task" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+					<TextBlock Text="{Binding AddTaskText}" Margin="5 5" FontSize="20" FontFamily="Faberge" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 					<Grid ColumnDefinitions="*,Auto" Margin="5">
 						<TextBox Grid.Column="0"
 								 Text="{Binding NewItemContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -300,16 +315,24 @@
 								   VerticalAlignment="Center"
 								   Margin="10"/>
 						<StackPanel HorizontalAlignment="Left">
-							<TextBlock Text="{Binding CurrentGroup.CreatedAt, StringFormat='Created: {0:dd.MM.yyyy HH:mm}'}"
-								   FontSize="15"
-								   FontFamily="Faberge"
-								   Margin="5,5,15,5"
-								   HorizontalAlignment="Right"/>
-							<TextBlock Text="{Binding CurrentGroup.LastChangeAt, StringFormat='Last change: {0:dd.MM.yyyy HH:mm}'}"
-								   FontSize="15"
-								   FontFamily="Faberge"
-								   Margin="5,5,15,5"
-								   HorizontalAlignment="Right"/>
+							<StackPanel Orientation="Horizontal" Margin="5">
+								<TextBlock Text="{Binding CreateDateText}"
+										   FontSize="15"
+										   FontFamily="Faberge"
+										   Margin="0,0,5,0"/>
+								<TextBlock Text="{Binding CurrentGroup.CreatedAt, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"
+										   FontSize="15"
+										   FontFamily="Faberge"/>
+							</StackPanel>
+							<StackPanel Orientation="Horizontal" Margin="5">
+								<TextBlock Text="{Binding LastChangeText}"
+										   FontSize="15"
+										   FontFamily="Faberge"
+										   Margin="0,0,5,0"/>
+								<TextBlock Text="{Binding CurrentGroup.LastChangeAt, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"
+										   FontSize="15"
+										   FontFamily="Faberge"/>
+							</StackPanel>
 						</StackPanel>
 					</StackPanel>
                 </Grid>
