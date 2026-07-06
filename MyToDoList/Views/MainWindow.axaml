@@ -357,8 +357,8 @@
 									</Button>
                                 </Grid>
                                 <Border.Styles>
-                                    <Style Selector="Border.completedTask">
-                                        <Setter Property="Background" Value="#90EE90"/>
+                                    <Style Selector="Border.completedTask TextBlock">
+                                        <Setter Property="TextDecorations" Value="Strikethrough"/>
                                     </Style>
                                 </Border.Styles>
                             </Border>
