@@ -322,10 +322,10 @@
                                     Padding="0" Margin="0,2"
                                     CornerRadius="5">
                                 <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="5">
-									<CheckBox
-										Grid.Column="0"
-										Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).ToggleTaskCommand}"
-										CommandParameter="{Binding}">										
+									<CheckBox IsChecked="{Binding IsCompleted, Mode=OneWay}"
+									    Grid.Column="0"
+									    Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).ToggleTaskCommand}"
+									    CommandParameter="{Binding}">
 									</CheckBox>
                                     <TextBlock Text="{Binding Content}" Grid.Column="1" FontSize="18" FontFamily="Faberge" Margin="0,0,5,0" VerticalAlignment="Center"/>
 									<Button Grid.Column="2"
