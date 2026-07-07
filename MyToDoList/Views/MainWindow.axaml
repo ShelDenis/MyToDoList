@@ -321,21 +321,13 @@
                             <Border Classes.completedTask="{Binding IsCompleted}"
                                     Padding="0" Margin="0,2"
                                     CornerRadius="5">
-                                <Grid ColumnDefinitions="*,Auto,Auto,Auto" Margin="5">
-                                    <TextBlock Text="{Binding Content}" Grid.Column="0" FontSize="18" FontFamily="Faberge" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                                    <Button Grid.Column="1"
-                                            Margin="5"
-                                            Width="40" Height="40"
-                                            UseLayoutRounding="True"
-                                            CornerRadius="20"
-                                            FontFamily="Faberge"
-                                            Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).ToggleTaskCommand}"
-                                            CommandParameter="{Binding}">
-										<PathIcon
-					                        Width="20" Height="20"
-					                        Data="{StaticResource IconToggle}">
-										</PathIcon>
-									</Button>
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="5">
+									<CheckBox IsChecked="{Binding IsCompleted, Mode=OneWay}"
+									    Grid.Column="0"
+									    Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).ToggleTaskCommand}"
+									    CommandParameter="{Binding}">
+									</CheckBox>
+                                    <TextBlock Text="{Binding Content}" Grid.Column="1" FontSize="18" FontFamily="Faberge" Margin="0,0,5,0" VerticalAlignment="Center"/>
 									<Button Grid.Column="2"
                                             Margin="5"
                                             Width="40" Height="40"
@@ -365,8 +357,8 @@
 									</Button>
                                 </Grid>
                                 <Border.Styles>
-                                    <Style Selector="Border.completedTask">
-                                        <Setter Property="Background" Value="#90EE90"/>
+                                    <Style Selector="Border.completedTask TextBlock">
+                                        <Setter Property="TextDecorations" Value="Strikethrough"/>
                                     </Style>
                                 </Border.Styles>
                             </Border>
