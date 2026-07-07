@@ -6,6 +6,7 @@ using MsBox.Avalonia.Enums;
 using MyToDoList.DB;
 using MyToDoList.Models;
 using MyToDoList.Services;
+using MyToDoList.Resources;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -18,6 +19,18 @@ namespace MyToDoList.ViewModels
         private readonly TaskService _taskService;
         private readonly TaskGroupService _groupService;
 
+        public LanguageViewModel LanguageVM { get; }
+
+        public string AppTitle => Strings.AppTitle;
+        public string AddGroupText => Strings.AddGroup;
+        public string AddTaskText => Strings.AddTask;
+        public string DeleteText => Strings.Delete;
+        public string ConfirmDeleteText => Strings.ConfirmDelete;
+        public string CreateDateText => Strings.CreateDate;
+        public string LastChangeText => Strings.LastChange;
+        public string RenameGroupText => Strings.RenameGroup;
+        public string RenameTaskText => Strings.RenameTask;
+
         public MainViewModel() : this(new AppDbContext()) { }
 
         public MainViewModel(AppDbContext db)
@@ -25,6 +38,8 @@ namespace MyToDoList.ViewModels
             _db = db;
             _taskService = new TaskService(db);
             _groupService = new TaskGroupService(db);
+            LanguageVM = new LanguageViewModel();
+            LanguageVM.LanguageChanged += OnLanguageChanged;
             LoadGroups();
         }
 
@@ -126,6 +141,19 @@ namespace MyToDoList.ViewModels
             if (!IsShowingGroups) return;
             Search(value ?? string.Empty);
             IsSearching = true;
+        }
+
+        private void OnLanguageChanged()
+        {
+            OnPropertyChanged(nameof(AppTitle));
+            OnPropertyChanged(nameof(AddGroupText));
+            OnPropertyChanged(nameof(AddTaskText));
+            OnPropertyChanged(nameof(DeleteText));
+            OnPropertyChanged(nameof(ConfirmDeleteText));
+            OnPropertyChanged(nameof(CreateDateText));
+            OnPropertyChanged(nameof(LastChangeText));
+            OnPropertyChanged(nameof(RenameGroupText));
+            OnPropertyChanged(nameof(RenameTaskText));
         }
 
         [RelayCommand(CanExecute = nameof(CanAddTask))]
@@ -236,8 +264,8 @@ namespace MyToDoList.ViewModels
 
            
             var box = MessageBoxManager.GetMessageBoxStandard(
-                "Delete",
-                "Are you sure to remove the group?",
+                DeleteText,
+                ConfirmDeleteText,
                 ButtonEnum.OkCancel);
 
 
@@ -301,6 +329,8 @@ namespace MyToDoList.ViewModels
             Tasks.Clear();
             IsShowingGroups = true;
             IsEnteringGroupName = false;
+            IsRenamingGroup = false;
+            IsRenamingTask = false;
         }
 
         [RelayCommand]
